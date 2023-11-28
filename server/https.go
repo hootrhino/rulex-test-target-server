@@ -17,14 +17,21 @@ package server
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	body := r.FormValue("data")
-	log.Printf("[Http Server] Received data: %s", body)
-	fmt.Fprintf(w, "Hello, %s!", body)
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("[Http Server] Failed to read request body: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	log.Printf("[Http Server] Received body: %s", body)
+	fmt.Fprintf(w, "Hello")
 }
 
 func StartHttpServer() {
